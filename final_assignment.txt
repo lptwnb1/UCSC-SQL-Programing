@@ -1,0 +1,67 @@
+1.  case
+      when month <= 3 then 1
+      when month <= 6 then 2
+      when month <= 9 then 3
+      else 4
+    end quarter
+2.  select
+      sum(case
+            when product_id = 1256 then sales
+            else 0
+          end) tot_sales_large_gears,
+      sum(case
+            when product_id = 4437 then sales
+            else 0
+          end) tot_sales_small_gears,
+      sum(case
+            when product_id = 5567 then sales
+            else 0
+          end) tot_sales_crankshafts,
+      sum(case
+            when product_id = 7684 then sales
+            else 0
+          end) tot_sales_sprockets
+    from Sales_Totals
+    where year = 2020;
+3.  select *,
+      rank() over(order by sales desc) sales_rank
+    from Sales_Totals;
+4.  select *,
+      rank() over(partition by product_id order by sales desc) product_sales_rank
+    from Sales_Totals;
+5.
+  with sales as( 
+    select *,
+      rank() over(partition by product_id order by sales desc) product_sales_rank
+    from Sales_Totals
+  )
+  select *
+  from sales
+  where product_sales_rank <= 2;
+6.  START TRANSACTION;
+      INSERT INTO `Region` (`region_id`,`region_name`) VALUES ('108','Europe');
+      INSERT INTO `Sales_Totals` (`product_id`, `region_id`, `year`, `month`, `sales`) VALUES ('7684', '108', '2020', '10', '1500');
+    COMMIT;
+7.  create or replace view
+      Product_Sales_Totals as
+    with sales as( 
+      select sum(case 
+            when product_id = 1256 or product_id = 4437 then sales
+            else 0
+          end) gear_sales
+      from Sales_Totals s
+    )
+    select product_id, year, sum(sales) product_sales, max(sales.gear_sales) gear_sales
+    from Sales_Totals s
+    cross join sales
+    group by s.product_id, s.year;
+
+8. select product_id, region_id, month, sales, round((sales/sum(sales) over())*100,1) pct_product_sales
+   from Sales_Totals s;
+
+9. select year, month, sales, lag(sales) over(order by month asc) prior_month_sales
+   from Sales_Totals s;
+
+10. select column_name, column_type
+    from information_schema.columns
+    where table_schema = 'sales' and table_name = 'Product';

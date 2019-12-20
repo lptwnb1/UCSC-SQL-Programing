@@ -1,0 +1,17 @@
+1. select cust_id from Customer_Order group by cust_id;
+2. select cust_id, max(order_date) from Customer_Order group by cust_id;
+3. select * from Customer_Order order by order_date desc, cust_id;
+4. select cust_id from Customer_Order group by cust_id having count(*) >= 3;
+5. select cust_id, order_date, count(*) from Customer_Order group by cust_id,order_date having count(*) >= 2;
+6. select cust_name from Customer c
+   where 3 =
+     (select count(*) from Customer_Order co where co.cust_id = c.cust_id);
+7. select cust_name from Customer c
+   left outer join Customer_Order co
+     on co.cust_id = c.cust_id
+   group by c.cust_id
+   HAVING count(*) = 3;
+8. select c.cust_name,
+   (select count(*) from Customer_Order co where c.cust_id = co.cust_id) as num
+   from Customer c
+   ;
